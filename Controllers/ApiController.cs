@@ -181,8 +181,24 @@ namespace HostAccessibilityCheckingSite.Controllers
         [Route("history")]
         public IActionResult GetHistory(int SiteId)
         {
+
             using (var db = new AppDbContext())
             {
+                var userId = Convert.ToInt32(User.FindFirst("userId").Value);
+
+                var isLegal = false;
+                foreach (var item in db.Relations)
+                {
+                    if (item.SiteId == SiteId && item.UserId == userId)
+                    {
+                        isLegal = true;
+                        break;
+                    }
+                }
+
+                if (!isLegal)
+                    return new JsonResult(new { Result = "Access denied" });
+
                 var result = db.PingHistory.Where(p => p.SiteId == SiteId).ToArray();
 
                 if (result.Count() > 0)
@@ -196,8 +212,11 @@ namespace HostAccessibilityCheckingSite.Controllers
         [Route("selectHistory")]
         public IActionResult GetHistorySelection(int SiteId, string StartDateTime, string EndDateTime)
         {
+
             var first = DateTime.TryParse(StartDateTime, out DateTime start);
             var second = DateTime.TryParse(EndDateTime, out DateTime end);
+
+            end = end.AddDays(1);
 
             if (!first || !second)
                 return new JsonResult(new { Result = "Wrong DateTime" });
@@ -205,10 +224,37 @@ namespace HostAccessibilityCheckingSite.Controllers
             using (var db = new AppDbContext())
             {
 
-                var result = db.PingHistory.Where(p => (p.SiteId == SiteId) && (p.Time >= start) && (p.Time <= end)).ToArray();
+                var userId = Convert.ToInt32(User.FindFirst("userId").Value);
+
+                var isLegal = false;
+                foreach (var item in db.Relations)
+                {
+                    if (item.SiteId == SiteId && item.UserId == userId)
+                    {
+                        isLegal = true;
+                        break;
+                    }
+                }
+
+                if (!isLegal)
+                    return new JsonResult(new { Result = "Access denied" });
+
+                var result = db.PingHistory.Where(p => (p.SiteId == SiteId) && (p.Time >= start) && (p.Time <= end)).ToList();
+
+                SiteSettings siteSettings = null;
+
+                foreach (var item in db.SiteList)
+                {
+                    if (item.Id == SiteId)
+                        siteSettings = item;
+                }
+
+                if (siteSettings == null)
+                    return new JsonResult(new { Result = "No such site" });
+
 
                 if (result.Count() > 0)
-                    return new JsonResult(result);
+                    return new JsonResult(new History(result, siteSettings));
                 else
                     return new JsonResult(new { Result = "No notes" });
             }

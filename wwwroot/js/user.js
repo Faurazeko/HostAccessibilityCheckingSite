@@ -92,8 +92,10 @@ $("#RemoveHostBtn").on("click", function () {
 
 $("#GetHistoryBtn").on("click", function () {
     var siteId = $("#select1").val();
+    var start = $("#dateStart").val();
+    var end = $("#dateEnd").val();
 
-    window.location = `/home/history?siteId=${siteId}`;
+    window.location = `/home/history?siteId=${siteId}&StartDateTime=${start}&EndDateTime=${end}`;
 });
 
 $("#ChangePasswordBtn").on("click", function () {

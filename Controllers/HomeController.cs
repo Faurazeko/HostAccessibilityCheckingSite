@@ -82,23 +82,25 @@ namespace HostAccessibilityCheckingSite.Controllers
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         public IActionResult History(int siteId)
         {
-            List<PingResult> list = null;
-            SiteSettings siteSettings = null;
-            using (var db = new AppDbContext())
-            {
-                list = db.PingHistory.Where(i => i.SiteId == siteId).ToList();
+            //List<PingResult> list = null;
+            //SiteSettings siteSettings = null;
+            //using (var db = new AppDbContext())
+            //{
+            //    list = db.PingHistory.Where(i => i.SiteId == siteId).ToList();
 
-                foreach (var item in db.SiteList)
-                {
-                    if(item.Id == siteId)
-                        siteSettings = item;
-                }
+            //    foreach (var item in db.SiteList)
+            //    {
+            //        if(item.Id == siteId)
+            //            siteSettings = item;
+            //    }
 
-                if (siteSettings == null || list.Count() < 1)
-                    return BadRequest();
-            }
+            //    if (siteSettings == null || list.Count() < 1)
+            //        return BadRequest();
+            //}
 
-            return View(new History(list, siteSettings));
+            //return View(new History(list, siteSettings));
+
+            return View();
         }
     }
 }
