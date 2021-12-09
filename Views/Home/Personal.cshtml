@@ -1,0 +1,72 @@
+﻿@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+}
+
+
+<button class="btn btn-outline-warning p-2 m-2" onclick="location.href='/home/logout';" style="position:absolute;">LogOut</button>
+<button class="btn btn-outline-warning p-2 mt-2" onclick="location.href='/home/admin';" style="position:absolute; margin-left:90px;">Admin panel</button>
+<div class="container-fluid text-white p-3 bg-primary" >
+    <h1 class="text-center">User Panel</h1>
+</div>
+
+
+<div class="row">
+
+    <div class="col-sm-4 p-3">
+
+        <h1 style="text-align:center;" >Host actions</h1>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Check host right now</h3>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="google.com" id="HostInput">
+            </div>
+
+            <button class="btn btn-primary" id="CheckHostBtn">Check</button>
+        </div>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Add host to tracking</h3>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="google.com" id="HostInputAdd">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="interval (in seconds)" id="IntervalInputAdd">
+            </div>
+            <button class="btn btn-primary" id="AddHostBtn">Add</button>
+        </div>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Remove host</h3>
+            <select class="form-select form-select-sm mb-2" aria-label=".form-select-sm" id="select2">
+            </select>
+            <button class="btn btn-outline-danger" id="RemoveHostBtn">Remove</button>
+        </div>
+
+    </div>
+
+    <div class="col-sm-4 p-3">
+
+        <h1 style="text-align:center;">History</h1>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Get history</h3>
+            <select class="form-select form-select-sm mb-2" aria-label=".form-select-sm" id="select1">
+            </select>
+            <button class="btn btn-primary" id="GetHistoryBtn">Get</button>
+        </div>
+    </div>
+
+    <div class="col-sm-4 p-3">
+        <h1 style="text-align:center;">Account settings</h1>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Change password</h3>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Password" id="PasswordInput">
+            </div>
+            <button class="btn btn-outline-danger" id="ChangePasswordBtn">Change</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="/js/user.js"></script>

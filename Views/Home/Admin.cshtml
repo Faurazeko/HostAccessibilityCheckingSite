@@ -1,0 +1,86 @@
+﻿@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+}
+
+
+<button class="btn btn-outline-warning p-2 m-2" onclick="location.href='/home/logout';" id="UserCheckBtn" style="position:absolute;">LogOut</button>
+<button class="btn btn-outline-warning p-2 mt-2" onclick="location.href='/home/personal';" style="position:absolute; margin-left:90px;">User panel</button>
+<div class="container-fluid text-white p-3 bg-primary" >
+    <h1 class="text-center">Admin Panel</h1>
+</div>
+
+
+<div class="row">
+
+    <div class="col-sm-4 p-3">
+
+        <h1 style="text-align:center;" >User actions</h1>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Check user existance</h3>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Username" id="UserCheckInput">
+            </div>
+
+            <button class="btn btn-primary" id="CheckUserBtn">Check</button>
+        </div>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Create user</h3>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Username" id="CreateUserInputU">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Password" id="CreateUserInputP">
+            </div>
+            <button class="btn btn-primary" id="CreateUserBtn">Add</button>
+        </div>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Delete user</h3>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Username" id="DeleteUserInput">
+            </div>
+            <button class="btn btn-outline-danger" id="DeleteUserBtn">Delete</button>
+        </div>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Update user password</h3>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Username" id="UpdateUserInputU">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Password" id="UpdateUserInputP">
+            </div>
+            <button class="btn btn-primary" id="UpdateUserBtn">Update</button>
+        </div>
+
+    </div>
+
+    <div class="col-sm-4 p-3">
+
+        <h1 style="text-align:center;">Relation actions</h1>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Add relation</h3>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Site note ID" id="AddRelationInputI">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="User ID" id="AddRelationInputU">
+            </div>
+            <button class="btn btn-primary" id="AddRelationBtn">Add</button>
+        </div>
+
+        <div class="container bg-dark text-white p-3 my-3">
+            <h3>Delete realation</h3>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Site note ID" id="DeleteRelationInputI">
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="UserID" id="DeleteRelationInputU">
+            </div>
+            <button class="btn btn-outline-danger" id="DeleteRelationBtn">Delete</button>
+        </div>
+
+    </div>
+
+    <div class="col-sm-4 p-3">
+        <h1 style="text-align:center;">Empty column</h1>
+    </div>
+
+</div>
+
+<script src="/js/admin.js"></script>
