@@ -51,7 +51,7 @@ namespace HostAccessibilityCheckingSite.Controllers
 
                 var result = new PingResult(DateTime.Now, pingReply.Status.ToString());
 
-                foreach (var item in db.SiteList)
+                foreach (var item in db.Sites)
                 {
                     if (item.Id == siteNoteId && item.Host == host)
                     {
@@ -106,19 +106,17 @@ namespace HostAccessibilityCheckingSite.Controllers
                 {
                     using (var db = new AppDbContext())
                     {
-                        foreach (var item in db.SiteList)
+                        foreach (var item in db.Sites)
                         {
-                            if(item.Host == host && item.Interval == interval)
-                            {
+                            if(item.Host == host && item.IntervalSeconds == interval)
                                 return new JsonResult(new { Result = "Already exists", HostId = item.Id});
-                            }
                         }
 
                         var nextCheck = DateTime.Now.AddSeconds(interval);
 
                         var newSite = new SiteSettings(host, interval, nextCheck);
 
-                        db.SiteList.Add(newSite);
+                        db.Sites.Add(newSite);
                         db.SaveChanges();
 
                         HostChecker.AddThread(newSite);
@@ -146,18 +144,16 @@ namespace HostAccessibilityCheckingSite.Controllers
 
                 using (var db = new AppDbContext())
                 {
+                    var allRelatedSitesId = (from i in db.Relations where i.UserId == userId select i.SiteId).ToArray();
 
-                    var allSites = (from i in db.Relations where i.UserId == userId select i.SiteId).ToArray();
-
-
-                    if (allSites.Count() <= 0)
+                    if (allRelatedSitesId.Count() <= 0)
                         return new JsonResult(new { Result = "No relations" });
 
                     var result = new List<SiteSettings>();
 
-                    foreach (var item in db.SiteList)
+                    foreach (var item in db.Sites)
                     {
-                        if(allSites.Contains(item.Id))
+                        if(allRelatedSitesId.Contains(item.Id))
                             result.Add(item);
                     }
 
@@ -166,22 +162,19 @@ namespace HostAccessibilityCheckingSite.Controllers
 
                     return new JsonResult(result);
                 }
-                
             }
             catch (Exception)
             {
                 await HttpContext.SignOutAsync();
                 return Redirect("/");
             }
-
         }
 
 
         [HttpGet]
         [Route("history")]
-        public IActionResult GetHistory(int SiteId)
+        public IActionResult GetHistory(int siteId)
         {
-
             using (var db = new AppDbContext())
             {
                 var userId = Convert.ToInt32(User.FindFirst("userId").Value);
@@ -189,7 +182,7 @@ namespace HostAccessibilityCheckingSite.Controllers
                 var isLegal = false;
                 foreach (var item in db.Relations)
                 {
-                    if (item.SiteId == SiteId && item.UserId == userId)
+                    if (item.SiteId == siteId && item.UserId == userId)
                     {
                         isLegal = true;
                         break;
@@ -199,7 +192,7 @@ namespace HostAccessibilityCheckingSite.Controllers
                 if (!isLegal)
                     return new JsonResult(new { Result = "Access denied" });
 
-                var result = db.PingHistory.Where(p => p.SiteId == SiteId).ToArray();
+                var result = db.PingHistory.Where(p => p.SiteId == siteId).ToArray();
 
                 if (result.Count() > 0)
                     return new JsonResult(result);
@@ -210,26 +203,24 @@ namespace HostAccessibilityCheckingSite.Controllers
 
         [HttpGet]
         [Route("selectHistory")]
-        public IActionResult GetHistorySelection(int SiteId, string StartDateTime, string EndDateTime)
+        public IActionResult GetHistorySelection(int siteId, string startDateTime, string endDateTime)
         {
+            var isStartDateTimeValid = DateTime.TryParse(startDateTime, out DateTime startDate);
+            var isEndDateTimeValid = DateTime.TryParse(endDateTime, out DateTime endDate);
 
-            var first = DateTime.TryParse(StartDateTime, out DateTime start);
-            var second = DateTime.TryParse(EndDateTime, out DateTime end);
+            endDate = endDate.AddDays(1);
 
-            end = end.AddDays(1);
-
-            if (!first || !second)
+            if (!isStartDateTimeValid || !isEndDateTimeValid)
                 return new JsonResult(new { Result = "Wrong DateTime" });
 
             using (var db = new AppDbContext())
             {
-
                 var userId = Convert.ToInt32(User.FindFirst("userId").Value);
 
                 var isLegal = false;
                 foreach (var item in db.Relations)
                 {
-                    if (item.SiteId == SiteId && item.UserId == userId)
+                    if (item.SiteId == siteId && item.UserId == userId)
                     {
                         isLegal = true;
                         break;
@@ -239,22 +230,21 @@ namespace HostAccessibilityCheckingSite.Controllers
                 if (!isLegal)
                     return new JsonResult(new { Result = "Access denied" });
 
-                var result = db.PingHistory.Where(p => (p.SiteId == SiteId) && (p.Time >= start) && (p.Time <= end)).ToList();
+                var result = db.PingHistory.Where(p => (p.SiteId == siteId) && (p.Time >= startDate) && (p.Time <= endDate)).ToList();
 
-                SiteSettings siteSettings = null;
+                SiteSettings site = null;
 
-                foreach (var item in db.SiteList)
+                foreach (var item in db.Sites)
                 {
-                    if (item.Id == SiteId)
-                        siteSettings = item;
+                    if (item.Id == siteId)
+                        site = item;
                 }
 
-                if (siteSettings == null)
+                if (site == null)
                     return new JsonResult(new { Result = "No such site" });
 
-
                 if (result.Count() > 0)
-                    return new JsonResult(new History(result, siteSettings));
+                    return new JsonResult(new History(result, site));
                 else
                     return new JsonResult(new { Result = "No notes" });
             }
@@ -276,7 +266,7 @@ namespace HostAccessibilityCheckingSite.Controllers
             using (var db = new AppDbContext())
             {
                 var user = db.Users.FirstOrDefault(u => u.Id == userId);
-                var site = db.SiteList.FirstOrDefault(s => s.Id == siteId);
+                var site = db.Sites.FirstOrDefault(s => s.Id == siteId);
 
                 if(user == null || site == null)
                     return new JsonResult(new { Result = "No such user or site" });
@@ -313,32 +303,28 @@ namespace HostAccessibilityCheckingSite.Controllers
                     db.Relations.Remove(note);
                     db.SaveChanges();
 
-                    var needToDelete = true;
+                    var isSiteNeedsToBeDeleted = true;
 
                     foreach (var item in db.Relations)
                     {
                         if (item.SiteId == siteId)
-                            needToDelete = false;
-                    }
-
-                    if (needToDelete)
-                    {
-
-                        foreach (var item in db.SiteList)
                         {
-                            if (item.Id == siteId)
-                                db.SiteList.Remove(item);
+                            isSiteNeedsToBeDeleted = false;
+                            break;
                         }
-                        db.SaveChanges();
-                            
-
                     }
 
+                    if (isSiteNeedsToBeDeleted)
+                    {
+                        var siteToDelete = new SiteSettings(siteId);
+                        db.Sites.Attach(siteToDelete);
+                        db.Sites.Remove(siteToDelete);
+
+                        db.SaveChanges();
+                    }
                     return new JsonResult(new { Result = "Relation deleted" });
                 }
-
             }
-
             return new JsonResult(new { Result = "Relation does not exists" });
         }
 
@@ -365,16 +351,16 @@ namespace HostAccessibilityCheckingSite.Controllers
         {
             using (var db = new AppDbContext())
             {
-                User toDelete = null;
+                User userToDelete = null;
                 foreach (var item in db.Users)
                 {
                     if (item.Username == login)
-                        toDelete = item;
+                        userToDelete = item;
                 }
 
-                if(toDelete != null)
+                if(userToDelete != null)
                 {
-                    db.Users.Remove(toDelete);
+                    db.Users.Remove(userToDelete);
                     db.SaveChanges();
                     return new JsonResult(new { Result = "User deleted" });
                 }
@@ -396,17 +382,18 @@ namespace HostAccessibilityCheckingSite.Controllers
 
             using (var db = new AppDbContext())
             {
-                var affected = false;
+                var isDbAffected = false;
                 foreach (var item in db.Users)
                 {
                     if (item.Username == login)
                     {
                         item.Password = password;
-                        affected = true;
+                        isDbAffected = true;
+                        break;
                     }  
                 }
 
-                if (affected)
+                if (isDbAffected)
                 {
                     db.SaveChanges();
                     return new JsonResult(new { Result = "Password updated" });
@@ -418,9 +405,8 @@ namespace HostAccessibilityCheckingSite.Controllers
 
         [HttpPost]
         [Route("user")]
-        public IActionResult CreateUser(string login, string password)
+        public IActionResult RegisterUser(string login, string password)
         {
-
             using (var db = new AppDbContext())
             {
                 foreach (var item in db.Users)

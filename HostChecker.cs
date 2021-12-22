@@ -14,46 +14,56 @@ namespace HostAccessibilityCheckingSite
 {
     public class HostChecker
     {
-        static private List<Thread> threads = new List<Thread>();
+        static private List<Thread> threadList = new List<Thread>();
         public HostChecker()
         {
             using (var db = new AppDbContext())
-                foreach (var item in db.SiteList)
+                foreach (var item in db.Sites)
                     AddThread(item);
         }
         
         public static void AddThread(SiteSettings siteSettings)
         {
-            var newThread = new Thread( () =>
+            PrintThreadInfo(siteSettings);
+
+            var newThread = CreateThread(siteSettings);
+            newThread.Start();
+
+            threadList.Add(newThread);
+        }
+
+        private static Thread CreateThread(SiteSettings siteSettings)
+        {
+            Thread thread = new Thread(() =>
             {
-                string str = $"ID: {siteSettings.Id} Host: {siteSettings.Host} Interval:{siteSettings.Interval}";
-
-                Console.WriteLine($"Added thread: {str}");
-
                 while (true)
                 {
                     ApiController.CheckHostLocal(siteSettings.Host, siteSettings.Id);
 
-                    var nextCheckTime = DateTime.Now.AddSeconds(siteSettings.Interval);
+                    var nextCheckTime = DateTime.Now.AddSeconds(siteSettings.IntervalSeconds);
 
                     using (var db = new AppDbContext())
                     {
-                        var item = db.SiteList.FirstOrDefault(s => s.Host == siteSettings.Host && s.Interval == siteSettings.Interval);
+                        var item = db.Sites.FirstOrDefault(s => s.Host == siteSettings.Host && s.IntervalSeconds == siteSettings.IntervalSeconds);
 
                         if (item != null)
                             item.NextCheckingTime = nextCheckTime;
 
                         db.SaveChanges();
                     }
-                    Console.WriteLine($"Pinged: {str}");
 
                     Thread.Sleep(nextCheckTime - DateTime.Now);
                 }
             });
 
-            newThread.Start();
+            return thread;
+        }
 
-            threads.Add(newThread);
+        private static void PrintThreadInfo(SiteSettings siteSettings)
+        {
+            string str = $"ID: {siteSettings.Id} Host: {siteSettings.Host} Interval:{siteSettings.IntervalSeconds}";
+
+            Console.WriteLine($"Added thread: {str}");
         }
     }
 }

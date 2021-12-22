@@ -22,6 +22,24 @@ namespace HostAccessibilityCheckingSite.Controllers
             return View();
         }
 
+        [NonAction]
+        private ClaimsPrincipal generateClaimsPrincipal(User user)
+        {
+            var claims = new List<Claim>()
+                        {
+                            new Claim("username", user.Username),
+                            new Claim("userId", user.Id.ToString()),
+                            new Claim(ClaimTypes.NameIdentifier, user.Username),
+                            new Claim(ClaimTypes.Name, user.Username),
+                        };
+
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            return claimsPrincipal;
+        }
+
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password, string returnUrl)
         {
@@ -31,26 +49,16 @@ namespace HostAccessibilityCheckingSite.Controllers
                 {
                     if (item.Username == username && item.Password == password)
                     {
-                        if (returnUrl == null || returnUrl == string.Empty)
+                        if (string.IsNullOrEmpty(returnUrl))
                             returnUrl = "/";
 
-                        var claims = new List<Claim>()
-                        {
-                            new Claim("username", username),
-                            new Claim("userId", item.Id.ToString()),
-                            new Claim(ClaimTypes.NameIdentifier, username),
-                            new Claim(ClaimTypes.Name, username),
-                        };
-
-
-                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-                        await HttpContext.SignInAsync(claimsPrincipal);
+                        var claims = generateClaimsPrincipal(item);
+                        await HttpContext.SignInAsync(claims);
 
                         return Redirect(returnUrl);
                     }
                 }
+
                 TempData["Error"] = "Error. Username or password is incorrect. :(";
                 return Redirect("login");
             }
@@ -61,7 +69,6 @@ namespace HostAccessibilityCheckingSite.Controllers
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Logout()
         {
-            var a = User.Identity.Name;
             await HttpContext.SignOutAsync();
             return Redirect("/");
         }
@@ -80,7 +87,7 @@ namespace HostAccessibilityCheckingSite.Controllers
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-        public IActionResult History(int siteId)
+        public IActionResult History()
         {
             return View();
         }

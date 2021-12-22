@@ -9,10 +9,10 @@ namespace HostAccessibilityCheckingSite.Data.Models
         public List<PingResult> Notes { get; set; }
         public SiteSettings Site { get; set; }
 
-        public History(List<PingResult> Notes, SiteSettings Site)
+        public History(List<PingResult> notes, SiteSettings site)
         {
-            this.Notes = Notes;
-            this.Site = Site;
+            Notes = notes;
+            Site = site;
         }
     }
 }

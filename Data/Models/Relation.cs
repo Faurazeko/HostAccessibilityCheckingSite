@@ -12,10 +12,10 @@ namespace HostAccessibilityCheckingSite.Data.Models
         public SiteSettings Site { get; set; }
 
 
-        public Relation(int UserId, int SiteId)
+        public Relation(int userId, int siteId)
         {
-            this.UserId = UserId;
-            this.SiteId = SiteId;
+            UserId = userId;
+            SiteId = siteId;
         }
 
     }

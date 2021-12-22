@@ -11,20 +11,20 @@ namespace HostAccessibilityCheckingSite.Data.Models
         [Key]
         public int Id { get; set; }
         public string Host { get; set; }
-        public int Interval { get; set; } // in seconds
+        public int IntervalSeconds { get; set; } // in seconds
         [Column(TypeName = "datetime2")]
         public DateTime NextCheckingTime { get; set; }
 
-        public SiteSettings(string Host, int Interval, DateTime NextCheckingTime)
+        public SiteSettings(string host, int intervalSeconds, DateTime nextCheckingTime)
         {
-            this.Host = Host;
-            this.Interval = Interval;
-            this.NextCheckingTime = NextCheckingTime;
+            Host = host;
+            IntervalSeconds = intervalSeconds;
+            NextCheckingTime = nextCheckingTime;
         }
 
-        public SiteSettings(int Id)
+        public SiteSettings(int id)
         {
-            this.Id = Id;
+            Id = id;
         }
     }
 }

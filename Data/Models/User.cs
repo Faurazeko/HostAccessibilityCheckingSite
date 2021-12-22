@@ -10,15 +10,15 @@ namespace HostAccessibilityCheckingSite.Data.Models
         public string Username { get; set; }
         public string Password { get; set; }
 
-        public User(int Id)
+        public User(int id)
         {
-            this.Id = Id;
+            Id = id;
         }
 
-        public User(string Username, string Password)
+        public User(string username, string password)
         {
-            this.Username = Username;
-            this.Password = Password;
+            Username = username;
+            Password = password;
         }
     }
 }

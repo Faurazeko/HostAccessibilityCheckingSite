@@ -10,13 +10,8 @@ namespace HostAccessibilityCheckingSite
     {
         public DbSet<User> Users { get; set; }
         public DbSet<PingResult> PingHistory { get; set; }
-        public DbSet<SiteSettings> SiteList { get; set; }
+        public DbSet<SiteSettings> Sites { get; set; }
         public DbSet<Relation> Relations { get; set; }
-
-        //protected override void OnModelCreating(ModelBuilder builder)
-        //{
-        //    builder.Entity<User>().HasIndex(u => u.Username).IsUnique();
-        //}
 
         public AppDbContext() => Database.EnsureCreated();
 
