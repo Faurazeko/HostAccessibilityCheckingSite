@@ -15,6 +15,11 @@ namespace HostAccessibilityCheckingSite
 
         public AppDbContext() => Database.EnsureCreated();
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<User>().HasAlternateKey(u => u.Username);
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=HostChekingDb;Trusted_Connection=True;MultipleActiveResultSets=true");

@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 using HostAccessibilityCheckingSite.Data.Models;
 
@@ -259,9 +260,14 @@ namespace HostAccessibilityCheckingSite.Controllers
             if(userId == 0)
                 userId = Convert.ToInt32(User.FindFirst("userId").Value);
 
-            //todo
-            // if role is not admin and userid is not the same then reject
-            // also i need roles......
+
+            var identityClaims = HttpContext.User.Identities.FirstOrDefault().Claims;
+            var identityRole = identityClaims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+            var identityId = Convert.ToInt32(identityClaims.FirstOrDefault(c => c.Type == "userId").Value);
+
+            if (userId != identityId && identityRole != "Admin")
+                return new JsonResult(new { Result = "Access denied!" });
+
 
             using (var db = new AppDbContext())
             {
@@ -290,9 +296,14 @@ namespace HostAccessibilityCheckingSite.Controllers
             if (userId == 0)
                 userId = Convert.ToInt32(User.FindFirst("userId").Value);
 
-            //todo
-            // if role is not admin and userid is not the same then reject
-            // also i need roles......
+
+            var identityClaims = HttpContext.User.Identities.FirstOrDefault().Claims;
+            var identityRole = identityClaims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+            var identityId = Convert.ToInt32(identityClaims.FirstOrDefault(c => c.Type == "userId").Value);
+
+            if (userId != identityId && identityRole != "Admin")
+                return new JsonResult(new { Result = "Access denied!" });
+
 
             using (var db = new AppDbContext())
             {
@@ -347,6 +358,7 @@ namespace HostAccessibilityCheckingSite.Controllers
 
         [HttpDelete]
         [Route("user")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteUser(string login)
         {
             using (var db = new AppDbContext())
@@ -375,10 +387,15 @@ namespace HostAccessibilityCheckingSite.Controllers
         {
             if (string.IsNullOrEmpty(login))
                 login = User.FindFirst("username").Value;
-                
-            //todo
-            // if role is not admin and userid is not the same then reject
-            // also i need roles......
+
+
+            var identityClaims = HttpContext.User.Identities.FirstOrDefault().Claims;
+            var identityRole = identityClaims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+            var identityUsername = identityClaims.FirstOrDefault(c => c.Type == "username").Value;
+
+            if (login != identityUsername && identityRole != "Admin")
+                return new JsonResult(new { Result = "Access denied!" });
+
 
             using (var db = new AppDbContext())
             {
@@ -405,6 +422,7 @@ namespace HostAccessibilityCheckingSite.Controllers
 
         [HttpPost]
         [Route("user")]
+        [Authorize(Roles = "Admin")]
         public IActionResult RegisterUser(string login, string password)
         {
             using (var db = new AppDbContext())

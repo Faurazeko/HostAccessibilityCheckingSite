@@ -9,10 +9,12 @@ namespace HostAccessibilityCheckingSite.Data.Models
     {
         [Key]
         public int Id { get; set; }
+        [Required]
         public int SiteId { get; set; }
         public SiteSettings Site { get; set; }
         [Column(TypeName = "datetime2")]
         public DateTime Time { get; set; }
+        [Required]
         public string Status { get; set; }
 
 

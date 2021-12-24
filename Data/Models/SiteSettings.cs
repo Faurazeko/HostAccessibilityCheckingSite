@@ -10,8 +10,10 @@ namespace HostAccessibilityCheckingSite.Data.Models
     {
         [Key]
         public int Id { get; set; }
+        [Required]
         public string Host { get; set; }
-        public int IntervalSeconds { get; set; } // in seconds
+        [Required]
+        public int IntervalSeconds { get; set; }
         [Column(TypeName = "datetime2")]
         public DateTime NextCheckingTime { get; set; }
 

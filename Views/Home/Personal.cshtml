@@ -4,7 +4,10 @@
 
 
 <button class="btn btn-outline-warning p-2 m-2" onclick="location.href='/home/logout';" style="position:absolute;">LogOut</button>
-<button class="btn btn-outline-warning p-2 mt-2" onclick="location.href='/home/admin';" style="position:absolute; margin-left:90px;">Admin panel</button>
+@if (@User.FindFirst(System.Security.Claims.ClaimTypes.Role).Value == "Admin")
+{
+    <button class="btn btn-outline-warning p-2 mt-2" onclick="location.href='/home/admin';" style="position:absolute; margin-left:90px;">Admin panel</button>
+}
 <div class="container-fluid text-white p-3 bg-primary" >
     <h1 class="text-center">User Panel</h1>
 </div>

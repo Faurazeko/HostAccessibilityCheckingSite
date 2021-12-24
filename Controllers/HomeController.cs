@@ -33,6 +33,11 @@ namespace HostAccessibilityCheckingSite.Controllers
                             new Claim(ClaimTypes.Name, user.Username),
                         };
 
+            if (user.IsAdmin)
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            else
+                claims.Add(new Claim(ClaimTypes.Role, "User"));
+
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
@@ -80,8 +85,14 @@ namespace HostAccessibilityCheckingSite.Controllers
             return View();
         }
 
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
         public IActionResult Admin()
+        {
+            return View();
+        }
+
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+        public IActionResult Denied()
         {
             return View();
         }
