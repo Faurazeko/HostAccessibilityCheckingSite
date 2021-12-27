@@ -32,11 +32,10 @@ namespace HostAccessibilityCheckingSite.Controllers
         [NonAction]
         static public IActionResult CheckHostLocal(string host, int siteNoteId)
         {
-            Ping ping = new Ping();
-
             if (string.IsNullOrEmpty(host))
                 return new JsonResult(new { Result = "Host is empty" });
 
+            Ping ping = new Ping();
             PingReply pingReply = null;
 
             using (var db = new AppDbContext())
@@ -50,28 +49,33 @@ namespace HostAccessibilityCheckingSite.Controllers
                     return new JsonResult(new PingResult(-1, -1, DateTime.Now, "Error"));
                 }
 
-                var result = new PingResult(DateTime.Now, pingReply.Status.ToString());
+                var pingResult = new PingResult(DateTime.Now, pingReply.Status.ToString());
 
+                SavePingResult(host, siteNoteId, ref pingResult);
+
+                if (pingResult.SiteId >= 0)
+                    return new JsonResult(pingResult);
+
+                pingResult.SiteId = -1;
+                pingResult.Id = -1;
+                return new JsonResult(pingResult);
+            }
+        }
+
+        [NonAction]
+        static private void SavePingResult(string host, int siteNoteId, ref PingResult pingResult)
+        {
+            using (var db = new AppDbContext())
+            {
                 foreach (var item in db.Sites)
                 {
                     if (item.Id == siteNoteId && item.Host == host)
                     {
-                        result.SiteId = item.Id;
-                        db.PingHistory.Add(result);
+                        pingResult.SiteId = item.Id;
+                        db.PingHistory.Add(pingResult);
                     }
                 }
                 db.SaveChanges();
-
-                if (result.SiteId >= 0)
-                    return new JsonResult(result);
-
-
-
-                result.SiteId = -1;
-                result.Id = -1;
-
-
-                return new JsonResult(result);
             }
         }
 
